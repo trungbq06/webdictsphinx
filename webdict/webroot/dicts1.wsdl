@@ -27,6 +27,12 @@
         <xsd:element name="name" type="xsd:string"/>
        </xsd:all>
       </xsd:complexType>
+	  
+	  <xsd:complexType name="DictResult1">
+       <xsd:all>
+        <xsd:element name="name" type="xsd:string"/>
+       </xsd:all>
+      </xsd:complexType>
     </xsd:schema>
   </types>
   
@@ -37,11 +43,20 @@
 	<message name='getDictResponse'>
 		<part name='Result' type='xsd:DictResult'/>
 	</message>
+	
+	<message name='getDictResponse1'>
+		<part name='Result' type='xsd:DictResult1'/>
+	</message>
 
 	<portType name='DictSearchPortType'>
 	  <operation name='searchdict'>
 		<input message='typens:getDictRequest'/>
 		<output message='typens:getDictResponse'/>
+	  </operation>
+	  
+	  <operation name='request'>
+		<input message='typens:getDictRequest'/>
+		<output message='typens:getDictResponse1'/>
 	  </operation>
 	</portType>
 
@@ -49,6 +64,18 @@
 	  <soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
 	  <operation name='searchdict'>
 		<soap:operation soapAction='urn:localhost-dicts#searchdict'/>
+		<input>
+		  <soap:body use='encoded' namespace='urn:DictSearch'
+			encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+		</input>
+		<output>
+		  <soap:body use='encoded' namespace='urn:DictSearch'
+			encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+		</output>
+	  </operation>
+	  
+	  <operation name='request'>
+		<soap:operation soapAction='urn:localhost-dicts#request'/>
 		<input>
 		  <soap:body use='encoded' namespace='urn:DictSearch'
 			encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
