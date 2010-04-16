@@ -34,8 +34,8 @@ class DictsController extends AppController {
 	{
 		$this->layout = "";
 		$search['dict_id'] = 1;
-		$search['search_term'] = "authorities";
-		$result = $this->Dict->searchdict($search);
+		$search['search_term'] = "loves";
+		$result = $this->Dict->request($search);
 		// $tmp = $search['search_term'];
 		// if (!empty($result)) {
 			// if (substr($tmp, strlen($tmp)-1, 1) == "s") {
@@ -45,12 +45,28 @@ class DictsController extends AppController {
 			// }
 		// }
 		print_r($result);
-	}	
+	}
+	
+	function autoComplete($dict_id) {
+		//echo "<script type='text/javascript'>alert(".$dict_id.")</script>";
+		$this->layout = 'ajax';
+		$str = $this->params['url']['q'];
+		$search['search_term'] = $str;
+		//$search['search_term'] = "hello";
+		$search['dict_id'] = $dict_id;
+		ini_set("soap.wsdl_cache_enabled", "0");
+		$client = new SoapClient("dicts1.wsdl", array("trace"=>1, "exceptions"=>1));		
+		$resultList = $client->request($search);
+		//echo "Request :<br>". htmlspecialchars($client->__getLastRequest()). "<br>";
+		//echo "Response :<br>". htmlspecialchars($client->__getLastResponse());
+		$this->set('resultList', $resultList);
+	}
 	
 	//Test thử server xem có được hay không
 	function search()
 	{
-		$this->layout = "";
+		//$this->layout = "";
+		$this->layout = 'ajax';
 		$dicts = $this->Dict->query("select * from dictionaries");
 		$this->set("dicts", $dicts);
 		//echo "trung";
@@ -66,6 +82,7 @@ class DictsController extends AppController {
 			$search_term = $this->Dict->lower(trim($_POST['search_term']));
 		}
 		//echo $search_term;
+		echo $dict_id;
 		$this->set("search_term", $_POST['search_term']);
 		$this->set("dict_id", $dict_id);
 		$search['dict_id'] = $dict_id;
