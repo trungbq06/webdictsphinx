@@ -1,0 +1,59 @@
+<?xml version ='1.0' encoding ='UTF-8' ?>
+<definitions name='DictSearch'
+  targetNamespace='http://http://127.0.0.1/dicts.wsdl'
+  xmlns:tns='http://http://127.0.0.1/dicts.wsdl'
+  xmlns:soap='http://schemas.xmlsoap.org/wsdl/soap/'
+  xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+  xmlns:soapenc='http://schemas.xmlsoap.org/soap/encoding/'
+  xmlns:wsdl='http://schemas.xmlsoap.org/wsdl/'
+  xmlns='http://schemas.xmlsoap.org/wsdl/'>
+
+  <types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:DictSearch">
+      <xsd:complexType name="DictResult">
+       <xsd:all>
+        <xsd:element name="meaning" type="xsd:string"/>
+
+        <xsd:element name="imagelink" type="xsd:string"/>
+        <xsd:element name="pronounciation" type="xsd:string"/>
+       </xsd:all>
+      </xsd:complexType>
+    </xsd:schema>
+  </types>
+  
+	<message name='getDictRequest'>
+		<part name='symbol' type='xsd:string'/>
+	</message>
+	
+	<message name='getDictResponse'>
+		<part name='Result' type='xsd:DictResult'/>
+	</message>
+
+	<portType name='DictSearchPortType'>
+	  <operation name='searchdict'>
+		<input message='typens:getDictRequest'/>
+		<output message='typens:getDictResponse'/>
+	  </operation>
+	</portType>
+
+	<binding name='DictSearchBinding' type='typens:DictSearchPortType'>
+	  <soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
+	  <operation name='searchdict'>
+		<soap:operation soapAction='urn:localhost-dicts#searchdict'/>
+		<input>
+		  <soap:body use='encoded' namespace='urn:DictSearch'
+			encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+		</input>
+		<output>
+		  <soap:body use='encoded' namespace='urn:DictSearch'
+			encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/>
+		</output>
+	  </operation>
+	</binding>
+
+	<service name='DictSearchService'>
+	  <port name='DictSearchPortType' binding='DictSearchBinding'>
+		<soap:address location='http://127.0.0.1/dicts/search'/>
+	  </port>
+	</service>
+</definitions>

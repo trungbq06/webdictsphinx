@@ -1,0 +1,31 @@
+body{
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+a{
+	text-decoration: none;
+}
+a:visited{ 
+	color: #257ab0;
+}
+a::hover{
+	color: #257ab0;
+}
+#container{
+	margin: 0;
+	padding: 0;
+	width: 800px;
+}
+#header{
+	float: right;
+}
+.hello{
+	color: #078807;
+}
+.user_text{
+	color: #257ab0;
+}
+.menu {
+	background: url('');
+}
