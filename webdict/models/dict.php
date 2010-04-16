@@ -22,7 +22,7 @@ class Dict extends AppModel {
 		return $result;
 	}
 	
-	function searchdict($search, $suffix='')
+	function searchdict($search)
 	{
 		//echo "vao day";
 		require_once("sphinxapi.php");
@@ -103,6 +103,91 @@ class Dict extends AppModel {
 		
 		$resultList = $this->query("select meaning, img_link, pronounce_link, id, name from words where id=$id");
 		return $resultList;
+	}
+	
+	function request($search)
+	{
+		//echo "vao day";
+		require_once("sphinxapi.php");
+		$sp = new SphinxClient();
+		$sp->SetServer("127.0.0.1", 9312);
+		$sp->SetConnectTimeout(5);
+		//$sp->SetWeights(array(10, 5, 1));
+		$sp->SetMatchMode(SPH_MATCH_EXTENDED2);
+        $sp->SetRankingMode(SPH_RANK_PROXIMITY_BM25);
+        $sp->SetSortMode(SPH_SORT_RELEVANCE);
+		//$dictId = 2;
+		//$sp->SetFilter("dictionary_id",array(0=>$dictId));
+		$sp->SetFilter("dictionary_id", array($search['dict_id']));
+		//$sp->SetFilter("dictionary_id", array(1));
+		$sp->SetArrayResult(true);
+		//echo strtolower("Advertent");
+		//$search['search_term'] = "Advertent";
+		$temp = $search['search_term'];
+		$temp = str_replace("-", "", $temp);
+		$temp = str_replace("_", "", $temp);
+		$term = $this->convertToSphinx($temp);
+		//$resultList = $sp->Query("@(name_search)giAIo HLAMo", "words");
+		$resultList = $sp->Query("@(name_search)".$term, "words");
+		//print_r($resultList);
+		//echo $search['search_term'];
+		$id = '';
+		//print_r($resultList);
+		$tmp_re = '';
+		if ($resultList['matches']!=0) {
+			for ($i = 0;$i < count($resultList['matches']);$i++) {
+				$tmp_re .= $resultList['matches'][$i]['id'].",";
+			}
+			$tmp_re = substr($tmp_re, 0, strlen($tmp_re)-1);
+			//echo "select name from words where id = ".$resultList['matches'][$i]['id']."";
+			//echo "select name from words where id in (".$tmp_re.")";
+			$tmpResult = $this->query("select name from words where id in (".$tmp_re.")");
+			//print_r($tmpResult);
+			
+		}
+		//Nếu không tìm thấy, cắt bỏ dần các ký tự cuối theo quy tắc cho tới khi tìm thấy.
+		else {
+			$tmp = $search['search_term'];
+			if (substr($tmp, strlen($tmp)-1, 1) == "s") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-1);
+				return $this->searchdict($search);
+			//Cắt bỏ một ký tự s
+			} else if (substr($tmp, strlen($tmp)-1, 1) == "e") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-1);
+				return $this->searchdict($search);
+			//Cắt bỏ một ký tự i
+			} else if (substr($tmp, strlen($tmp)-1, 1) == "i") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-1)."y";
+				return $this->searchdict($search);
+			//Cắt bỏ một ký tự d
+			} else if (substr($tmp, strlen($tmp)-1, 1) == "d") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-1);
+				return $this->searchdict($search);
+			//Cắt bỏ một ký tự e
+			} else if (substr($tmp, strlen($tmp)-1, 1) == "e") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-1);
+				return $this->searchdict($search);
+			//Cắt bỏ 3 ký tự ing
+			} else if (substr($tmp, strlen($tmp)-3, 3) == "ing") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-3);
+				return $this->searchdict($search);
+			//Cắt bỏ 2 ký tự er
+			} else if (substr($tmp, strlen($tmp)-2, 2) == "er") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-2);
+				return $this->searchdict($search);
+			//Cắt bỏ 2 ký tự ly
+			} else if (substr($tmp, strlen($tmp)-2, 2) == "ly") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-2);
+				return $this->searchdict($search);
+			//Cắt bỏ 2 ký tự st
+			} else if (substr($tmp, strlen($tmp)-2, 2) == "st") {
+				$search['search_term'] = substr($tmp, 0, strlen($tmp)-2);
+				return $this->searchdict($search);
+			}
+		}
+		
+		//$resultList = $this->query("select meaning, img_link, pronounce_link, id, name from words where id=$id");
+		return $tmpResult;
 	}
 	
 	function getNewsCategory() {
